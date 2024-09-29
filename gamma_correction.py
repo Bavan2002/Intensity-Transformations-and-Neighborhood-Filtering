@@ -3,7 +3,7 @@ import cv2 as cv
 import matplotlib.pyplot as plt
 import numpy as np
 img_orig = cv.imread(r'C:\Users\Bavan2002.DESKTOP-TITUVCT\Desktop\EN3160_Assignment\1\Intensity-Transformations-and-Neighborhood-Filtering\a1images\highlights_and_shadows.jpg', cv.IMREAD_COLOR)
-gamma = 2
+gamma = 1.5
 table = np.array([(i/255.0)**(1/gamma)*255.0 for i in np.arange(0,256)]).astype('uint8')
 img_gamma = cv.LUT(img_orig, table)
 img_orig = cv.cvtColor(img_orig, cv.COLOR_BGR2RGB)
