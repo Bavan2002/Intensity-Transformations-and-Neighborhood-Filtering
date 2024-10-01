@@ -1,79 +1,106 @@
-# # Gamma and Histograms
-# import cv2 as cv
-# import matplotlib.pyplot as plt
-# import numpy as np
-# img_orig = cv.imread(r'C:\Users\Bavan2002.DESKTOP-TITUVCT\Desktop\EN3160_Assignment\1\Intensity-Transformations-and-Neighborhood-Filtering\a1images\highlights_and_shadows.jpg', cv.IMREAD_COLOR)
-# gamma = 1.5
-# table = np.array([(i/255.0)**(1/gamma)*255.0 for i in np.arange(0,256)]).astype('uint8')
-# img_gamma = cv.LUT(img_orig, table)
-# img_orig = cv.cvtColor(img_orig, cv.COLOR_BGR2RGB)
-# img_gamma = cv.cvtColor(img_gamma, cv.COLOR_BGR2RGB)
-# f, axarr = plt.subplots(3,2)
-# axarr[0,0].imshow(img_orig)
-# axarr[0,1].imshow(img_gamma)
-
-# color = ('b', 'g', 'r')
-# for i, c in enumerate(color):
-#     hist_orig = cv.calcHist([img_orig], [i], None, [256], [0,256])
-#     axarr[1,0].plot(hist_orig, color = c)
-#     hist_gamma = cv.calcHist([img_gamma], [i], None, [256], [0,256])
-#     axarr[1,1].plot(hist_gamma, color = c)    
-# axarr[2,0].plot(table)
-# axarr[2,0].set_xlim(0,255)
-# axarr[2,0].set_ylim(0,255)
-# axarr[2,0].set_aspect('equal')
-
-# plt.show()
-
-from skimage import color, exposure
-import matplotlib.pyplot as plt
-from PIL import Image
+import cv2
 import numpy as np
+import matplotlib.pyplot as plt
 
-# Load the image
-image_path = '1/Intensity-Transformations-and-Neighborhood-Filtering/a1images/highlights_and_shadows.jpg'  # Replace with the path to your image
-image_rgb = np.array(Image.open(image_path))
+# Read the input image for gamma correction
+bgr_image = cv2.imread('1/Intensity-Transformations-and-Neighborhood-Filtering/a1images/highlights_and_shadows.jpg')
 
-# Convert the image from RGB to LAB color space
-image_lab = color.rgb2lab(image_rgb)
+# Convert the image from BGR to LAB color space
+lab_image = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2LAB)
 
-# Separate the L, a, b channels
-L, a, b = image_lab[:, :, 0], image_lab[:, :, 1], image_lab[:, :, 2]
+# Split the LAB image into L, A, and B channels
+L_channel, A_channel, B_channel = cv2.split(lab_image)
 
-# Define gamma value for correction
-gamma = 0.6  # You can modify this value based on your requirement
+# Normalize the L channel to the range [0, 1] for gamma correction
+L_normalized = L_channel / 255.0
 
-# Apply gamma correction to the L channel
-L_gamma_corrected = exposure.adjust_gamma(L / 100.0, gamma) * 100  # Normalizing L to [0, 1] and applying gamma
+# Apply gamma correction with gamma = 2.2
+gamma_high = 2
+L_gamma_high = np.power(L_normalized, gamma_high)
 
-# Merge the gamma-corrected L channel back with a and b
-image_lab_corrected = np.stack((L_gamma_corrected, a, b), axis=2)
+# Rescale the L channel back to the range [0, 255] and convert to uint8
+L_gamma_high = np.uint8(L_gamma_high * 255)
 
-# Convert the corrected LAB image back to RGB color space
-image_rgb_corrected = color.lab2rgb(image_lab_corrected)
+# Merge the gamma corrected L channel with the original A and B channels
+lab_gamma_corrected_high = cv2.merge((L_gamma_high, A_channel, B_channel))
 
-# Plot the original and gamma-corrected images
-fig, ax = plt.subplots(1, 2, figsize=(12, 6))
+# Convert back to the BGR color space
+gamma_corrected_high_img = cv2.cvtColor(lab_gamma_corrected_high, cv2.COLOR_LAB2BGR)
 
-ax[0].imshow(image_rgb)
-ax[0].set_title('Original Image')
-ax[0].axis('off')
+# Apply gamma correction with gamma = 0.5
+gamma_low = 0.5
+L_gamma_low = np.power(L_normalized, gamma_low)
 
-ax[1].imshow(image_rgb_corrected)
-ax[1].set_title('Gamma Corrected Image (γ = 0.5)')
-ax[1].axis('off')
+# Rescale and convert to uint8
+L_gamma_low = np.uint8(L_gamma_low * 255)
 
+# Merge the gamma corrected L channel with the original A and B channels
+lab_gamma_corrected_low = cv2.merge((L_gamma_low, A_channel, B_channel))
+
+# Convert back to BGR color space
+gamma_corrected_low_img = cv2.cvtColor(lab_gamma_corrected_low, cv2.COLOR_LAB2BGR)
+
+# Display the original and gamma corrected images side by side
+fig, axes = plt.subplots(1, 3, figsize=(12, 6))
+
+# Display gamma correction with gamma = 0.5
+axes[0].set_title("Gamma Corrected (γ = 0.5)")
+axes[0].imshow(cv2.cvtColor(gamma_corrected_low_img, cv2.COLOR_BGR2RGB))
+
+# Display the original image
+axes[1].set_title("Original Image")
+axes[1].imshow(cv2.cvtColor(bgr_image, cv2.COLOR_BGR2RGB))
+
+# Display gamma correction with gamma = 2
+axes[2].set_title("Gamma Corrected (γ = 2)")
+axes[2].imshow(cv2.cvtColor(gamma_corrected_high_img, cv2.COLOR_BGR2RGB))
+
+# Show the plots
 plt.show()
 
-# Plot the histograms of the original and corrected L channel
-fig, ax = plt.subplots(1, 2, figsize=(12, 6))
+# Histogram plotting for original and gamma corrected images
+fig, axs = plt.subplots(1, 2, figsize=(15, 5))
 
-ax[0].hist(L.ravel(), bins=256, range=(0, 100), fc='black', ec='black')
-ax[0].set_title('Histogram of Original L Channel')
+# Histogram for the original image (RGB channels)
+axs[0].set_title("Original Image Histogram (RGB Channels)")
+axs[0].hist(bgr_image[:, :, 0].flatten(), bins=256, range=[0, 256], color='b', alpha=0.4, label='Blue Channel')
+axs[0].hist(bgr_image[:, :, 1].flatten(), bins=256, range=[0, 256], color='g', alpha=0.4, label='Green Channel')
+axs[0].hist(bgr_image[:, :, 2].flatten(), bins=256, range=[0, 256], color='r', alpha=0.4, label='Red Channel')
+axs[0].set_xlim([0, 256])
+axs[0].legend()
 
-ax[1].hist(L_gamma_corrected.ravel(), bins=256, range=(0, 100), fc='black', ec='black')
-ax[1].set_title('Histogram of Gamma Corrected L Channel')
+# Histogram for gamma corrected image with gamma = 2.2
+axs[1].set_title("Gamma Corrected (γ = 2) Histogram")
+axs[1].hist(gamma_corrected_high_img[:, :, 0].flatten(), bins=256, range=[0, 256], color='b', alpha=0.4, label='Blue Channel')
+axs[1].hist(gamma_corrected_high_img[:, :, 1].flatten(), bins=256, range=[0, 256], color='g', alpha=0.4, label='Green Channel')
+axs[1].hist(gamma_corrected_high_img[:, :, 2].flatten(), bins=256, range=[0, 256], color='r', alpha=0.4, label='Red Channel')
+axs[1].set_xlim([0, 256])
+axs[1].set_ylim([0, 8000])
+axs[1].legend()
 
+plt.tight_layout()
 plt.show()
 
+# Plot histograms for the gamma corrected image with gamma = 0.5
+fig, axs = plt.subplots(1, 2, figsize=(15, 5))
 
+# Histogram for the original image
+axs[0].set_title("Original Image Histogram (RGB Channels)")
+axs[0].hist(bgr_image[:, :, 0].flatten(), bins=256, range=[0, 256], color='b', alpha=0.4, label='Blue Channel')
+axs[0].hist(bgr_image[:, :, 1].flatten(), bins=256, range=[0, 256], color='g', alpha=0.4, label='Green Channel')
+axs[0].hist(bgr_image[:, :, 2].flatten(), bins=256, range=[0, 256], color='r', alpha=0.4, label='Red Channel')
+axs[0].set_xlim([0, 256])
+axs[0].legend()
+
+# Histogram for the gamma corrected image with gamma = 0.5
+axs[1].set_title("Gamma Corrected (γ = 0.5) Histogram")
+axs[1].hist(gamma_corrected_low_img[:, :, 0].flatten(), bins=256, range=[0, 256], color='b', alpha=0.4, label='Blue Channel')
+axs[1].hist(gamma_corrected_low_img[:, :, 1].flatten(), bins=256, range=[0, 256], color='g', alpha=0.4, label='Green Channel')
+axs[1].hist(gamma_corrected_low_img[:, :, 2].flatten(), bins=256, range=[0, 256], color='r', alpha=0.4, label='Red Channel')
+axs[1].set_xlim([0, 256])
+axs[1].set_ylim([0, 8000])
+axs[1].legend()
+
+# Show the figure
+plt.tight_layout()
+plt.show()
