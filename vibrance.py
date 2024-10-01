@@ -67,7 +67,7 @@ for alpha in vibrancy_results.keys():
     plt.show()
 
 # Applying vibrancy transformation with alpha = 0.4
-alpha = 0.4
+alpha = 0.45
 new_saturation_plane = np.zeros(saturation_channel.shape, dtype=np.uint8)
 
 # Apply vibrancy transformation to each pixel in the saturation plane
@@ -98,7 +98,7 @@ plt.show()
 print(f"Min and Max Saturation: {saturation_channel.min()}, {saturation_channel.max()}")
 
 # Generate the vibrancy transformation curve
-alpha_value = 0.4
+alpha_value = 0.45
 sigma_value = 70
 input_pixel_values = np.arange(0, 256)
 output_pixel_values = [vibrancy_transformation(x, alpha_value, sigma_value) for x in input_pixel_values]

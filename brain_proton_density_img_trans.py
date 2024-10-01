@@ -57,12 +57,12 @@ plt.show()
 
 # Display the white matter mask
 plt.imshow(white_matter_mask, cmap='gray')
-plt.title("White Matter Mask")
+plt.title("White Matter")
 plt.show()
 
 # Display the gray matter mask
 plt.imshow(gray_matter_mask, cmap='gray')
-plt.title("Gray Matter Mask")
+plt.title("Gray Matter")
 plt.show()
 
 # Create intensity transformation curves for both white and gray matter
