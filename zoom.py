@@ -85,16 +85,6 @@ def get_zoom_and_orignal_img(small_img, big_img, scale_factor=4, bypass_size_err
 im01_small_img = cv2.imread('C:/Users/Bavan2002.DESKTOP-TITUVCT/Desktop/EN3160_Assignment/1/Intensity-Transformations-and-Neighborhood-Filtering/a1images/a1q5images/im03small.png')
 im01_img = cv2.imread('C:/Users/Bavan2002.DESKTOP-TITUVCT/Desktop/EN3160_Assignment/1/Intensity-Transformations-and-Neighborhood-Filtering/a1images/a1q5images/im03.png')
 
-# Assuming 'im01_small_img' is your image
-height, width = im01_small_img.shape[:2]
-
-# Scaling the dimensions by a factor of 4
-new_height = height * 4
-new_width = width * 4
-
-# Resize the image using the new dimensions
-resized_image = cv2.resize(im01_small_img, (new_width, new_height), interpolation=cv2.INTER_LINEAR)
-
 # Display the resized image
 
 # im02_small_img = cv2.imread('1/Intensity-Transformations-and-Neighborhood-Filtering/a1images/a1q5images/im02small.png')
