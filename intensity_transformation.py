@@ -29,10 +29,15 @@ plt.savefig('transform.png')
 plt.show()
 
 img_orig = cv.imread(r'C:\Users\Bavan2002.DESKTOP-TITUVCT\Desktop\EN3160_Assignment\1\Intensity-Transformations-and-Neighborhood-Filtering\a1images\emma.jpg', cv.IMREAD_GRAYSCALE)
-cv.namedWindow("Image", cv.WINDOW_AUTOSIZE)
-cv.imshow("Image", img_orig)
-cv.waitKey(0)
 image_transformed = cv.LUT(img_orig, transform)
-cv.imshow("Image", image_transformed)
-cv.waitKey(0)
-cv.destroyAllWindows()
+
+plt.figure(figsize=(10, 5))
+plt.subplot(1, 2, 1)
+plt.title("original")
+plt.imshow(img_orig, cmap='gray')
+
+plt.subplot(1, 2, 2)
+plt.title("after intensity transformation")
+plt.imshow(image_transformed, cmap='gray')
+
+plt.show()
